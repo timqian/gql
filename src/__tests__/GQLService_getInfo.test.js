@@ -1,74 +1,74 @@
 /* @flow */
 import { code } from '../__test-data__/utils';
-import runGQLService from './runGQLService';
+import path from 'path';
+import { createTempFiles } from '../shared/test-utils';
+import { GQLService } from '../GQLService';
 
 describe('Schema: getDef', () => {
   it('works in schema files', (done) => {
-    const gql = runGQLService(
-      {
-        '/test/.gqlconfig': `
-          {
-            schema: {
-              files: 'schema/*.gql',
-            }
+    const dir = createTempFiles({
+      '.gqlconfig': `
+        {
+          schema: {
+            files: 'schema/*.gql',
           }
-        `,
-        '/test/schema/schema.gql': `
-          type Query {
-            viewer: Viewer
-          }
-
-          type Viewer {
-            name: string
-          }
+        }
       `,
-      },
-      {
-        cwd: '/test',
-        onInit() {
-          expect(
-            gql.getInfo({
-              sourcePath: '/test/schema/user.gql',
-              ...code(`
+      'schema/schema.gql': `
+        type Query {
+          viewer: Viewer
+        }
+
+        type Viewer {
+          name: string
+        }
+      `,
+    });
+    const gql = new GQLService({
+      cwd: dir,
+      watch: false,
+      onInit() {
+        expect(
+          gql.getInfo({
+            sourcePath: path.join(dir, 'schema/user.gql'),
+            ...code(`
                 type User {
                   viewer: Viewer
                   #---------^
                 }
               `),
-            }),
-          ).toMatchSnapshot();
-          done();
-        },
+          }),
+        ).toMatchSnapshot();
+        done();
       },
-    );
+    });
   });
   it('should not throw if called before onInit', () => {
-    const gql = runGQLService(
-      {
-        '/test/.gqlconfig': `
-          {
-            schema: {
-              files: 'schema/*.gql',
-            }
+    const dir = createTempFiles({
+      '.gqlconfig': `
+        {
+          schema: {
+            files: 'schema/*.gql',
           }
-        `,
-        '/test/schema/schema.gql': `
-          type Query {
-            viewer: Viewer
-          }
-
-          type Viewer {
-            name: string
-          }
+        }
       `,
-      },
-      {
-        cwd: '/test',
-      },
-    );
+      'schema/schema.gql': `
+        type Query {
+          viewer: Viewer
+        }
+
+        type Viewer {
+          name: string
+        }
+      `,
+    });
+    const gql = new GQLService({
+      cwd: dir,
+      watch: false,
+    });
     const run = () =>
       gql.getInfo({
-        sourcePath: '/test/schema/user.gql',
+        sourcePath: path.join(dir, 'schema/user.gql'),
         ...code(`
           type User {
             viewer: Viewer
@@ -84,50 +84,49 @@ describe('Schema: getDef', () => {
 
 describe('Query: getDef', () => {
   it('works in query files', (done) => {
-    const gql = runGQLService(
-      {
-        '/test/.gqlconfig': `
-          {
-            schema: {
-              files: 'schema/*.gql',
-            },
-            query: {
-              files: [
-                {
-                  match: 'query/*.gql',
-                  parser: 'QueryParser',
-                },
-              ]
-            }
+    const dir = createTempFiles({
+      '.gqlconfig': `
+        {
+          schema: {
+            files: 'schema/*.gql',
+          },
+          query: {
+            files: [
+              {
+                match: 'query/*.gql',
+                parser: 'QueryParser',
+              },
+            ]
           }
-        `,
-        '/test/schema/schema.gql': `
-          type Query {
-            viewer: Viewer
-          }
-
-          type Viewer {
-            name: string
-          }
+        }
       `,
-      },
-      {
-        cwd: '/test',
-        onInit() {
-          expect(
-            gql.getInfo({
-              sourcePath: '/test/query/user.gql',
-              ...code(`
+      'schema/schema.gql': `
+        type Query {
+          viewer: Viewer
+        }
+
+        type Viewer {
+          name: string
+        }
+      `,
+    });
+    const gql = new GQLService({
+      cwd: dir,
+      watch: false,
+      onInit() {
+        expect(
+          gql.getInfo({
+            sourcePath: path.join(dir, 'query/user.gql'),
+            ...code(`
                 fragment test on Viewer {
                     #-------------^
                   name
                 }
               `),
-            }),
-          ).toMatchSnapshot();
-          done();
-        },
+          }),
+        ).toMatchSnapshot();
+        done();
       },
-    );
+    });
   });
 });

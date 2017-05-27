@@ -1,45 +1,45 @@
 /* @flow */
 /* eslint-disable max-len */
-import runGQLService from './runGQLService';
+import { createTempFiles } from '../shared/test-utils';
+import { GQLService } from '../GQLService';
 
 test('correctly find all file extensions used in .gqlconfig', (done) => {
-  const gql = runGQLService(
-    {
-      '/test/.gqlconfig': `
-        {
-          schema: {
-            files: 'schema/*.gql',
-          },
-          query: {
-            files: [
-              {
-                match: 'query/*.graphql',
-                parser: 'QueryParser',
-              },
-              {
-                match: 'query/*.js',
-                parser: 'QueryParser',
-              },
-              {
-                match: 'query/*.xyz',
-                parser: 'QueryParser',
-              },
-            ]
-          }
+  const dir = createTempFiles({
+    '.gqlconfig': `
+      {
+        schema: {
+          files: 'schema/*.gql',
+        },
+        query: {
+          files: [
+            {
+              match: 'query/*.graphql',
+              parser: 'QueryParser',
+            },
+            {
+              match: 'query/*.js',
+              parser: 'QueryParser',
+            },
+            {
+              match: 'query/*.xyz',
+              parser: 'QueryParser',
+            },
+          ]
         }
-      `,
-      '/test/schema/schema.gql': `
-        type Query {
-          name: string
-        }
-      `,
+      }
+    `,
+    'schema/schema.gql': `
+      type Query {
+        name: string
+      }
+    `,
+  });
+  const gql = new GQLService({
+    cwd: dir,
+    watch: false,
+    onInit() {
+      expect(gql.getFileExtensions()).toMatchSnapshot();
+      done();
     },
-    {
-      cwd: '/test',
-      onInit() {
-        expect(gql.getFileExtensions()).toMatchSnapshot();
-        done();
-      },
-    },
-  );
+  });
 });

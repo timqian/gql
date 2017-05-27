@@ -8,8 +8,8 @@
     "url": "https://github.com/Mayank1791989/gql.git"
   },
   "scripts": {
-    "test": "yarn run check-code && npm run testonly -- --coverage",
-    "testonly": "cross-env NODE_ENV=test jest",
+    "test": "yarn run check-code && yarn run testonly -- --coverage",
+    "testonly": "yarn run clean-test-temp-dir && cross-env NODE_ENV=test jest",
     "check-code": "yarn run lint",
     "flow-check": "flow check",
     "lint": "eslint src",
@@ -18,6 +18,7 @@
     "report-coverage": "codecov",
     "semantic-release": "semantic-release pre && npm publish --access public && semantic-release post",
     "clean": "rm -rf lib",
+    "clean-test-temp-dir": "babel-node ./scripts/clear-test-temp-dir",
     "commit": "git-cz",
     "precommit": "yarn run test"
   },
@@ -32,8 +33,10 @@
     "babel-runtime": "6.23.0",
     "dentist": "1.0.3",
     "fb-watchman": "2.0.0",
+    "fbemitter": "2.1.1",
     "find-config": "1.0.0",
     "flow-runtime": "0.12.0",
+    "globby": "6.1.0",
     "graphql": "0.9.6",
     "graphql-language-service-interface": "0.0.11",
     "graphql-language-service-parser": "0.0.10",
@@ -45,7 +48,8 @@
     "minimatch": "3.0.4",
     "node-ipc": "9.0.1",
     "parse-glob": "3.0.4",
-    "promise-retry": "1.1.1"
+    "promise-retry": "1.1.1",
+    "sane": "1.7.0"
   },
   "devDependencies": {
     "babel-cli": "6.24.1",
@@ -57,6 +61,7 @@
     "commitizen": "2.9.6",
     "cross-env": "5.0.0",
     "cz-conventional-changelog": "2.0.0",
+    "deasync": "0.1.9",
     "eslint": "3.19.0",
     "eslint-plugin-playlyfe": "3.0.0",
     "flow-bin": "0.46.0",
@@ -64,6 +69,8 @@
     "husky": "0.13.3",
     "jest": "20.0.1",
     "memory-fs": "0.4.1",
+    "mkdirp": "0.5.1",
+    "object-hash": "1.1.8",
     "semantic-release": "6.3.6"
   },
   "config": {

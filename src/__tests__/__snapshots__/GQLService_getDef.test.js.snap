@@ -3,12 +3,12 @@
 exports[`Query: getDef works in query files 1`] = `
 Object {
   "end": Object {
-    "column": 12,
+    "column": 10,
     "line": 8,
   },
-  "path": "/test/schema/schema.gql",
+  "path": "/tmp/gql-test/cea177fe6871639bb5c6dbbece975dc5a7f9a15c/schema/schema.gql",
   "start": Object {
-    "column": 11,
+    "column": 9,
     "line": 6,
   },
 }
@@ -17,12 +17,12 @@ Object {
 exports[`Schema: getDef works in schema files 1`] = `
 Object {
   "end": Object {
-    "column": 12,
+    "column": 10,
     "line": 8,
   },
-  "path": "/test/schema/schema.gql",
+  "path": "/tmp/gql-test/4dae3772d2ca36e740891e5aa5ddb39c57c0712b/schema/schema.gql",
   "start": Object {
-    "column": 11,
+    "column": 9,
     "line": 6,
   },
 }

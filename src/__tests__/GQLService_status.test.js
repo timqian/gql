@@ -1,38 +1,37 @@
 /* @flow */
 /* eslint-disable max-len */
-import runGQLService from './runGQLService';
+import { GQLService } from '../GQLService';
+import { createTempFiles } from '../shared/test-utils';
 
 describe('Schema', () => {
   it('should report errors in schema', (done) => {
-    const gql = runGQLService(
-      {
-        '/test/.gqlconfig': `
+    const gql = new GQLService({
+      cwd: createTempFiles({
+        '.gqlconfig': `
           {
             schema: {
               files: 'schema/*.gql',
             }
           }
         `,
-        '/test/schema/schema.gql': `
+        'schema/schema.gql': `
           type Query {
             viewer: xViewer # missing viewer
           }
-      `,
+        `,
+      }),
+      watch: false,
+      onInit() {
+        expect(gql.status()).toMatchSnapshot();
+        done();
       },
-      {
-        cwd: '/test',
-        onInit() {
-          expect(gql.status()).toMatchSnapshot();
-          done();
-        },
-      },
-    );
+    });
   });
 
   it('can modify validation rule severity', (done) => {
-    const gql = runGQLService(
-      {
-        '/test/schema/schema.gql': `
+    const gql = new GQLService({
+      cwd: createTempFiles({
+        'schema/schema.gql': `
           type Query {
             name: String
           }
@@ -40,7 +39,7 @@ describe('Schema', () => {
             name: String
           }
         `,
-        '/test/.gqlconfig': `{
+        '.gqlconfig': `{
           schema: {
             files: 'schema/*.gql',
             validate: {
@@ -51,80 +50,75 @@ describe('Schema', () => {
             }
           }
         }`,
+      }),
+      watch: false,
+      onInit: () => {
+        expect(gql.status()).toMatchSnapshot();
+        done();
       },
-      {
-        cwd: '/test',
-        onInit: () => {
-          expect(gql.status()).toMatchSnapshot();
-          done();
-        },
-      },
-    );
+    });
   });
 
-  it('calling status before onInit should not throw', () => {
-    const gql = runGQLService(
-      {
-        '/test/.gqlconfig': `
+  it('calling status before onInit should not throw', (done) => {
+    const gql = new GQLService({
+      cwd: createTempFiles({
+        '.gqlconfig': `
           {
             schema: {
               files: 'schema/*.gql',
             }
           }
         `,
-        '/test/schema/schema.gql': `
+        'schema/schema.gql': `
           type Query {
             viewer: xViewer # missing viewer
           }
-      `,
-      },
-      {
-        cwd: '/test',
-      },
-    );
+        `,
+      }),
+      watch: false,
+      onInit: done,
+    });
     expect(() => gql.status()).not.toThrow();
     expect(gql.status()).toEqual([]);
   });
 
   it('can turn off validation rules', (done) => {
-    const gql = runGQLService(
-      {
-        '/test/schema/schema.gql': `
-          type Query {
-            name: String
-          }
-          type Hello {
-            name: String
-          }
-        `,
-        '/test/.gqlconfig': `{
-          schema: {
-            files: 'schema/*.gql',
-            validate: {
-              extends: 'gql-rules-schema',
-              rules: {
-                NoUnusedTypeDefinition: 'off',
-              },
+    const gql = new GQLService({
+      cwd: createTempFiles({
+        'schema/schema.gql': `
+            type Query {
+              name: String
             }
-          }
-        }`,
+            type Hello {
+              name: String
+            }
+          `,
+        '.gqlconfig': `{
+            schema: {
+              files: 'schema/*.gql',
+              validate: {
+                extends: 'gql-rules-schema',
+                rules: {
+                  NoUnusedTypeDefinition: 'off',
+                },
+              }
+            }
+          }`,
+      }),
+      watch: false,
+      onInit: () => {
+        expect(gql.status()).toMatchSnapshot();
+        done();
       },
-      {
-        cwd: '/test',
-        onInit: () => {
-          expect(gql.status()).toMatchSnapshot();
-          done();
-        },
-      },
-    );
+    });
   });
 });
 
 describe('Query', () => {
   it('report query errors', (done) => {
-    const gql = runGQLService(
-      {
-        '/test/.gqlconfig': `
+    const gql = new GQLService({
+      cwd: createTempFiles({
+        '.gqlconfig': `
           {
             schema: {
               files: 'schema/*.gql',
@@ -139,7 +133,7 @@ describe('Query', () => {
             }
           }
         `,
-        '/test/schema/schema.gql': `
+        'schema/schema.gql': `
           type Query {
             viewer: Viewer
           }
@@ -147,21 +141,19 @@ describe('Query', () => {
             name: String
           }
         `,
-        '/test/query/query.gql': `
+        'query/query.gql': `
           query {
             xViewer {
               name
             }
           }
         `,
+      }),
+      watch: false,
+      onInit: () => {
+        expect(gql.status()).toMatchSnapshot();
+        done();
       },
-      {
-        cwd: '/test',
-        onInit: () => {
-          expect(gql.status()).toMatchSnapshot();
-          done();
-        },
-      },
-    );
+    });
   });
 });

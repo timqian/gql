@@ -7,7 +7,7 @@ Array [
       Object {
         "column": 13,
         "line": 3,
-        "path": "/test/query/query.gql",
+        "path": "/tmp/gql-test/c57fb271cbb161eb984617f3e9dff63ff8a3dab6/query/query.gql",
       },
     ],
     "message": "Cannot query field \\"xViewer\\" on type \\"Query\\". Did you mean \\"viewer\\"? (FieldsOnCorrectType)",
@@ -23,7 +23,7 @@ Array [
       Object {
         "column": 11,
         "line": 5,
-        "path": "/test/schema/schema.gql",
+        "path": "/tmp/gql-test/a1c3b7f4d95aae42520a0beaaebd08968b164ca2/schema/schema.gql",
       },
     ],
     "message": "Unused type definition 'Hello' (NoUnusedTypeDefinition)",
@@ -41,7 +41,7 @@ Array [
       Object {
         "column": 21,
         "line": 3,
-        "path": "/test/schema/schema.gql",
+        "path": "/tmp/gql-test/ca7b65d03c4b6f03d11204e53a0c1a7e510c5b29/schema/schema.gql",
       },
     ],
     "message": "Type \\"xViewer\\" not found.",

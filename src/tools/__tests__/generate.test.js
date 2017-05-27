@@ -2,8 +2,6 @@
 import path from 'path';
 
 test('generate: schemaJSON', (done) => {
-  jest.mock('../../shared/watch');
-  const watch = require('../../shared/watch').default;
   const generate = require('../generate').default;
 
   generate({
@@ -24,13 +22,9 @@ test('generate: schemaJSON', (done) => {
       done();
     },
   });
-
-  watch.__triggerChange();
 });
 
 test('generate: should handle graphql parse errors', (done) => {
-  jest.mock('../../shared/watch');
-  const watch = require('../../shared/watch').default;
   const generate = require('../generate').default;
 
   generate({
@@ -45,7 +39,5 @@ test('generate: should handle graphql parse errors', (done) => {
       done();
     },
   });
-
-  watch.__triggerChange();
 });
 

@@ -1,19 +1,20 @@
 /* @flow */
 import { code } from '../__test-data__/utils';
-import runGQLService from './runGQLService';
+import { GQLService } from '../GQLService';
+import { createTempFiles } from '../shared/test-utils';
+import path from 'path';
 
 describe('Schema: autocomplete', () => {
   it('works in schema files', (done) => {
-    const gql = runGQLService(
-      {
-        '/test/.gqlconfig': `
+    const rootPath = createTempFiles({
+      '.gqlconfig': `
           {
             schema: {
               files: 'schema/*.gql',
             }
           }
         `,
-        '/test/schema/schema.gql': `
+      'schema/schema.gql': `
           type Query {
             viewer: Viewer
           }
@@ -21,39 +22,39 @@ describe('Schema: autocomplete', () => {
           type Viewer {
             name: string
           }
-      `,
-      },
-      {
-        cwd: '/test',
-        onInit() {
-          expect(
-            gql.autocomplete({
-              sourcePath: '/test/schema/user.gql',
-              ...code(`
+        `,
+    });
+    const gql = new GQLService({
+      cwd: rootPath,
+      watch: false,
+      onInit() {
+        expect(
+          gql.autocomplete({
+            sourcePath: path.join(rootPath, 'schema/user.gql'),
+            ...code(`
                 type User {
                   viewer: Vi
                   #---------^
                 }
             `),
-            }),
-          ).toMatchSnapshot();
-          done();
-        },
+          }),
+        ).toMatchSnapshot();
+        done();
       },
-    );
+    });
   });
 
   it('should not throw if called before initialization', () => {
-    const gql = runGQLService(
-      {
-        '/test/.gqlconfig': `
+    const gql = new GQLService({
+      cwd: createTempFiles({
+        '.gqlconfig': `
           {
             schema: {
               files: 'schema/*.gql',
             }
           }
         `,
-        '/test/schema/schema.gql': `
+        'schema/schema.gql': `
           type Query {
             viewer: Viewer
           }
@@ -61,16 +62,14 @@ describe('Schema: autocomplete', () => {
           type Viewer {
             name: string
           }
-      `,
-      },
-      {
-        cwd: '/test',
-      },
-    );
+        `,
+      }),
+      watch: false,
+    });
 
     const run = () =>
       gql.autocomplete({
-        sourcePath: '/test/schema/user.gql',
+        sourcePath: 'schema/user.gql',
         ...code(`
         type User {
           viewer: Vi
@@ -86,50 +85,49 @@ describe('Schema: autocomplete', () => {
 
 describe('Query: autocomplete', () => {
   it('works in query files', (done) => {
-    const gql = runGQLService(
-      {
-        '/test/.gqlconfig': `
-          {
-            schema: {
-              files: 'schema/*.gql',
-            },
-            query: {
-              files: [
-                {
-                  match: 'query/*.gql',
-                  parser: 'QueryParser',
-                },
-              ]
-            }
+    const dir = createTempFiles({
+      '.gqlconfig': `
+        {
+          schema: {
+            files: 'schema/*.gql',
+          },
+          query: {
+            files: [
+              {
+                match: 'query/*.gql',
+                parser: 'QueryParser',
+              },
+            ]
           }
-        `,
-        '/test/schema/schema.gql': `
-          type Query {
-            viewer: Viewer
-          }
-
-          type Viewer {
-            name: string
-          }
+        }
       `,
-      },
-      {
-        cwd: '/test',
-        onInit() {
-          expect(
-            gql.autocomplete({
-              sourcePath: '/test/query/user.gql',
-              ...code(`
-                fragment test on Viewer {
-                  na
-                 #--^
-                }
+      'schema/schema.gql': `
+        type Query {
+          viewer: Viewer
+        }
+
+        type Viewer {
+          name: string
+        }
+      `,
+    });
+    const gql = new GQLService({
+      cwd: dir,
+      watch: false,
+      onInit() {
+        expect(
+          gql.autocomplete({
+            sourcePath: path.join(dir, 'query/user.gql'),
+            ...code(`
+              fragment test on Viewer {
+                na
+               #--^
+              }
             `),
-            }),
-          ).toMatchSnapshot();
-          done();
-        },
+          }),
+        ).toMatchSnapshot();
+        done();
       },
-    );
+    });
   });
 });

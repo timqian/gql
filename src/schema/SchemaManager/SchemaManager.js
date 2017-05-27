@@ -2,8 +2,11 @@
 import path from 'path';
 import fs from 'fs';
 
-import { Source } from 'graphql/language/source';
+import EventEmitter, { type EmitterSubscription } from '../../shared/emitter';
+import GQLWatcher from '../../shared/GQLWatcher';
+
 import { parse } from 'graphql/language/parser';
+import { Source } from 'graphql/language/source';
 import { GraphQLSchema } from 'graphql/type';
 
 import { buildASTSchema } from './buildASTSchema';
@@ -14,56 +17,68 @@ import { type GQLError, SEVERITY, toGQLError } from '../../shared/GQLError';
 import { validate } from '../../schema';
 import GQLConfig from '../../config/GQLConfig';
 
-import watch from '../../shared/watch';
-
 import { type ParsedFilesMap, type WatchFile } from '../../shared/types';
 
 import { type GQLSchema } from '../../shared/GQLTypes';
 import { type DocumentNode } from 'graphql/language/ast';
 
-export default class GQLSchemaBuilder {
-  _config: GQLConfig;
+type Options = {|
+  config: GQLConfig,
+  watcher: GQLWatcher,
+|};
+
+export default class SchemaManager {
+  _emitter = new EventEmitter();
   _schema: GQLSchema;
   _ast: DocumentNode;
   _errors: Array<GQLError>;
   _parsedFilesMap: ParsedFilesMap = new Map();
   _isInitialized: boolean = false;
+  _options: Options;
+  _watcher: *;
 
-  constructor(options: {
-    config: GQLConfig,
-    onChange?: () => void,
-    onInit?: Function,
-    watch: boolean,
-  }) {
-    const { config, onChange, onInit } = options;
+  constructor(options: Options) {
+    this._options = options;
+    this._setupWatcher();
+  }
 
-    this._config = config;
-
+  _setupWatcher() {
     // watch schema files and rebuild schema
     // console.log(config.getDir());
-    const watchClient = watch({
-      rootPath: config.getDir(),
-      files: config.getSchema().files,
+    const options = this._options;
+
+    this._watcher = this._options.watcher.watch({
       name: 'gqlSchemaFiles',
+      rootPath: options.config.getDir(),
+      files: options.config.getSchema().files,
       onChange: (files: Array<WatchFile>) => {
-        this._updateFiles(files, config.getSchema());
-        // console.log('init done');
-        if (!this._isInitialized) {
-          this._isInitialized = true;
-          // console.log(this._isInitialized);
-          if (onInit) {
-            onInit();
-          }
+        // Handle Error
+        try {
+          this._updateFiles(files);
+        } catch (e) {
+          this._emitter.emit('error', e);
         }
 
-        if (onChange) {
-          onChange();
+        if (!this._isInitialized) {
+          this._isInitialized = true;
+          this._emitter.emit('init');
         }
-        if (!options.watch) {
-          watchClient.end();
-        }
+
+        this._emitter.emit('change');
       },
     });
+  }
+
+  onInit(listener: () => void): EmitterSubscription {
+    return this._emitter.addListener('init', listener);
+  }
+
+  onError(listener: () => void): EmitterSubscription {
+    return this._emitter.addListener('error', listener);
+  }
+
+  onChange(listener: () => void): EmitterSubscription {
+    return this._emitter.addListener('change', listener);
   }
 
   getSchema(): GQLSchema {
@@ -79,7 +94,10 @@ export default class GQLSchemaBuilder {
   }
 
   // private methods
-  _updateFiles(files: Array<WatchFile>, config: any) {
+  _updateFiles(files: Array<WatchFile>) {
+    const options = this._options;
+    const schemaOptions = options.config.getSchema();
+
     if (files.length === 0) {
       return;
     }
@@ -87,7 +105,7 @@ export default class GQLSchemaBuilder {
     // console.time('updating files');
     files.forEach(({ name, exists }) => {
       // console.log(name, exists);
-      const absPath = path.join(this._config.getDir(), name);
+      const absPath = path.join(options.config.getDir(), name);
       if (exists) {
         this._parsedFilesMap.set(absPath, this._parseFile(absPath));
       } else {
@@ -98,9 +116,7 @@ export default class GQLSchemaBuilder {
 
     //  build merged ast
     // console.time('buildAST');
-    const { ast, errors: parseErrors } = this._buildASTFromParsedFiles(
-      this._parsedFilesMap,
-    );
+    const { ast, errors: parseErrors } = this._buildASTFromParsedFiles(this._parsedFilesMap);
     // console.timeEnd('buildAST');
 
     // build GQLSchema from ast
@@ -111,7 +127,7 @@ export default class GQLSchemaBuilder {
     // validate
     // console.time('validate');
     // console.log(config.validate);
-    const validationErrors = validate(schema, ast, config.validate);
+    const validationErrors = validate(schema, ast, schemaOptions.validate);
     // console.timeEnd('validate');
 
     this._ast = ast;
@@ -127,11 +143,13 @@ export default class GQLSchemaBuilder {
       return {
         ast,
         error: null,
+        source,
       };
     } catch (err) {
       return {
         error: toGQLError(err, SEVERITY.error),
         ast: null,
+        source,
       };
     }
   };

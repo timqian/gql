@@ -1,6 +1,6 @@
 /* @flow */
 import { parse } from 'graphql/language/parser';
-import { buildASTSchema } from '../../SchemaBuilder/buildASTSchema';
+import { buildASTSchema } from '../../SchemaManager/buildASTSchema';
 import { validate } from '../validate';
 
 it('Report unused type definition', () => {

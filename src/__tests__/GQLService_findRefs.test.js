@@ -1,75 +1,76 @@
 /* @flow */
 import { code } from '../__test-data__/utils';
-import runGQLService from './runGQLService';
+import path from 'path';
+import { createTempFiles } from '../shared/test-utils';
+import { GQLService } from '../GQLService';
 
 test('findRefs should return all references of token at given position', (done) => {
-  const gql = runGQLService(
-    {
-      '/test/.gqlconfig': `
-        {
-          schema: {
-            files: 'schema/*.gql',
-          }
+  const dir = createTempFiles({
+    '.gqlconfig': `
+      {
+        schema: {
+          files: 'schema/*.gql',
         }
-      `,
-      '/test/schema/schema.gql': `
-        type Query {
-          viewer: Viewer
-        }
+      }
+    `,
+    'schema/schema.gql': `
+      type Query {
+        viewer: Viewer
+      }
 
-        type Viewer {
-          name: string
-        }
-      `,
-    },
-    {
-      cwd: '/test',
-      onInit() {
-        expect(
-          gql.findRefs({
-            sourcePath: '/test/schema/user.gql',
-            ...code(`
+      type Viewer {
+        name: string
+      }
+    `,
+  });
+  const gql = new GQLService({
+    cwd: dir,
+    watch: false,
+    onInit() {
+      expect(
+        gql.findRefs({
+          sourcePath: path.join(dir, 'schema/user.gql'),
+          ...code(`
               type User {
                 viewer: Viewer
                 #---------^
               }
             `),
-          }),
-        ).toMatchSnapshot();
-        done();
-      },
+        }),
+      ).toMatchSnapshot();
+      done();
     },
-  );
+  });
 });
 
 test('should not throw if called before onInit', () => {
-  const gql = runGQLService(
-    {
-      '/test/.gqlconfig': `
-        {
-          schema: {
-            files: 'schema/*.gql',
-          }
+  const dir = createTempFiles({
+    '.gqlconfig': `
+      {
+        schema: {
+          files: 'schema/*.gql',
         }
-      `,
-      '/test/schema/schema.gql': `
-        type Query {
-          viewer: Viewer
-        }
+      }
+    `,
+    'schema/schema.gql': `
+      type Query {
+        viewer: Viewer
+      }
 
-        type Viewer {
-          name: string
-        }
-      `,
-    },
-    {
-      cwd: '/test',
-    },
-  );
+      type Viewer {
+        name: string
+      }
+    `,
+  });
+
+  const gql = new GQLService({
+    cwd: dir,
+    watch: false,
+  });
 
   const run = () =>
     gql.findRefs({
-      sourcePath: '/test/schema/user.gql',
+      sourcePath: path.join(dir, 'schema/user.gql'),
       ...code(`
         type User {
           viewer: Viewer

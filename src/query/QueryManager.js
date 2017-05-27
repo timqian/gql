@@ -1,68 +1,87 @@
 /* @flow */
 import path from 'path';
 import fs from 'fs';
+import EventEmitter, { type EmitterSubscription } from '../shared/emitter';
 
 import { Source } from 'graphql/language/source';
 
 import { type GQLError, SEVERITY, toGQLError } from '../shared/GQLError';
+import GQLWatcher from '../shared/GQLWatcher';
 
 import validate from './validation/validate';
 import parseQuery from './_shared/parseQuery';
 import GQLConfig from '../config/GQLConfig';
 
-import watch from '../shared/watch';
-
-import { type ParsedFilesMap, type WatchFile } from '../shared/types';
 
 import { type GQLSchema } from '../shared/GQLTypes';
+import { type ParsedFilesMap, type WatchFile } from '../shared/types';
 
 type Options = {
   config: GQLConfig,
   getSchema: () => GQLSchema,
-  onChange?: () => void,
-  onInit?: () => void,
+  watcher: GQLWatcher,
 };
 
 export class QueryManager {
+  _emitter = new EventEmitter();
+  _initialized: boolean = false;
   _config: GQLConfig;
   _errors: Array<GQLError> = [];
   _parsedFilesMap: ParsedFilesMap = new Map();
   _getSchema: () => GQLSchema;
-  _initialized: boolean = false;
+  _options: Options;
 
   constructor(options: Options) {
-    const { config, onChange, onInit } = options;
-
-    this._config = config;
+    this._options = options;
+    this._config = options.config;
     this._getSchema = options.getSchema;
+    this._setupWatcher();
+  }
 
-    // watch schema files and rebuild schema
-    const queryConfig = config.getQuery();
-
+  _setupWatcher() {
+    const queryConfig = this._config.getQuery();
     if (!queryConfig) {
       return;
     }
-
-    queryConfig.files.map((fileConfig, index) =>
-      watch({
-        rootPath: config.getDir(),
+    let leftInitCount = queryConfig.files.length;
+    queryConfig.files.forEach((fileConfig, index) => {
+      this._options.watcher.watch({
+        rootPath: this._config.getDir(),
         files: fileConfig.match,
         name: `gqlQueryFiles-${index}`,
         onChange: (files: Array<WatchFile>) => {
-          this._updateFiles(files, fileConfig);
+          try {
+            this._updateFiles(files, fileConfig);
+          } catch (e) {
+            this._emitter.emit('error', e);
+          }
           // console.log('init done');
           if (!this._initialized) {
-            this._initialized = true;
-            if (onInit) {
-              onInit();
+            leftInitCount -= 1;
+            if (leftInitCount === 0) {
+              this._initialized = true;
+              this._emitter.emit('init');
             }
           }
-          if (onChange) {
-            onChange();
+
+          if (this._initialized) {
+            this._emitter.emit('change');
           }
         },
-      }),
-    );
+      });
+    });
+  }
+
+  onInit(listener: () => void): EmitterSubscription {
+    return this._emitter.addListener('init', listener);
+  }
+
+  onChange(listener: () => void): EmitterSubscription {
+    return this._emitter.addListener('change', listener);
+  }
+
+  onError(listener: () => void): EmitterSubscription {
+    return this._emitter.addListener('change', listener);
   }
 
   getErrors(): Array<GQLError> {
@@ -103,11 +122,7 @@ export class QueryManager {
       if (parsedFile.error) {
         errors.push(parsedFile.error);
       } else {
-        const validationErrors = validate(
-          schema,
-          parsedFile.ast,
-          parsedFile.config,
-        );
+        const validationErrors = validate(schema, parsedFile.ast, parsedFile.config);
         if (validationErrors) {
           errors.push(...validationErrors);
         }

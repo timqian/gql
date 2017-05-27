@@ -1,5 +1,5 @@
 /* @flow */
-export { SchemaBuilder } from './SchemaBuilder';
+export { SchemaManager } from './SchemaManager';
 
 import * as commands from './commands';
 export { commands };

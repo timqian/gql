@@ -2,30 +2,37 @@
 import path from 'path';
 import { dedent } from 'dentist';
 import splitLines from '../shared/splitLines';
+import { GQLService } from '../GQLService';
+import deasync from 'deasync';
 
 export function getSchema() {
-  jest.mock('../shared/watch');
-  const watch = require('../shared/watch').default;
-  const { GQLService } = require('../');
-  const gql = new GQLService({ cwd: path.resolve('src/__test-data__/') });
-  // $FlowDisableNextLine
-  watch.__triggerChange();
-  return gql._schemaBuilder.getSchema();
+  let schema = null;
+  const gql = new GQLService({
+    cwd: path.resolve('src/__test-data__/'),
+    watch: false,
+    onInit() {
+      schema = gql._schemaManager.getSchema();
+    },
+  });
+  // HACK to make this synchronous
+  deasync.loopWhile(() => !schema);
+  return schema;
 }
 
 export function getDefLocations() {
+  /* eslint-disable camelcase */
   return {
     Player: {
       start: { line: 12, column: 1 },
       end: { line: 16, column: 2 },
       path: path.resolve('src/__test-data__/schema/query.gql'),
     },
-    Player_id: { // eslint-disable-line camelcase
+    Player_id: {
       start: { line: 13, column: 3 },
       end: { line: 13, column: 10 },
       path: path.resolve('src/__test-data__/schema/query.gql'),
     },
-    Player_image_arg_size: { // eslint-disable-line camelcase
+    Player_image_arg_size: {
       start: { line: 15, column: 9 },
       end: { line: 15, column: 19 },
       path: path.resolve('src/__test-data__/schema/query.gql'),
@@ -52,17 +59,17 @@ export function getDefLocations() {
       end: { line: 5, column: 2 },
       path: path.resolve('src/__test-data__/schema/mutation.gql'),
     },
-    Mutation_PlayerCreate: { // eslint-disable-line camelcase
+    Mutation_PlayerCreate: {
       start: { line: 4, column: 3 },
       end: { line: 4, column: 63 },
       path: path.resolve('src/__test-data__/schema/mutation.gql'),
     },
-    Mutation_PlayerCreateInput: { // eslint-disable-line camelcase
+    Mutation_PlayerCreateInput: {
       start: { line: 6, column: 1 },
       end: { line: 9, column: 2 },
       path: path.resolve('src/__test-data__/schema/mutation.gql'),
     },
-    Mutation_PlayerCreateInput_id: { // eslint-disable-line camelcase
+    Mutation_PlayerCreateInput_id: {
       start: { line: 8, column: 3 },
       end: { line: 8, column: 10 },
       path: path.resolve('src/__test-data__/schema/mutation.gql'),
@@ -73,7 +80,7 @@ export function getDefLocations() {
       end: { line: 6, column: 2 },
       path: path.resolve('src/__test-data__/schema/query.gql'),
     },
-    Query_viewer: { // eslint-disable-line camelcase
+    Query_viewer: {
       start: { line: 5, column: 3 },
       end: { line: 5, column: 18 },
       path: path.resolve('src/__test-data__/schema/query.gql'),
@@ -96,12 +103,13 @@ export function getDefLocations() {
       end: { line: 7, column: 25 },
       path: path.resolve('src/__test-data__/schema/directives.gql'),
     },
-    customDirective_argIf: { // eslint-disable-line camelcase
+    customDirective_argIf: {
       start: { line: 4, column: 3 },
       end: { line: 4, column: 15 },
       path: path.resolve('src/__test-data__/schema/directives.gql'),
     },
   };
+  /* eslint-enable */
 }
 
 export function getRefLocations() {

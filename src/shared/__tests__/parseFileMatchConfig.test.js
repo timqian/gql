@@ -1,42 +1,43 @@
 /* @flow */
-import { toMatchExpression } from '../watch';
+import parseFileMatchConfig from '../parseFileMatchConfig';
 
 test('string', () => {
-  expect(toMatchExpression('files/**/*.gql')).toMatchSnapshot();
+  expect(parseFileMatchConfig('files/**/*.gql')).toMatchSnapshot();
 });
 
 test('Array<string>', () => {
-  expect(toMatchExpression(['files/**/*.gql', 'files2/**/*.gql'])).toMatchSnapshot();
+  expect(parseFileMatchConfig(['files/**/*.gql', 'files2/**/*.gql'])).toMatchSnapshot();
 });
 
 test('Object<include: string>', () => {
-  expect(toMatchExpression({
+  expect(parseFileMatchConfig({
     include: 'files/**/*.gql',
   })).toMatchSnapshot();
 });
 
 test('Object<include: Array<string>>: single', () => {
-  expect(toMatchExpression({
+  expect(parseFileMatchConfig({
     include: ['files/**/*.gql'],
   })).toMatchSnapshot();
 });
 
 test('Object<match: Array<string>>', () => {
-  expect(toMatchExpression({
+  expect(parseFileMatchConfig({
     include: ['files/**/*.gql', 'files2/**/*gql'],
   })).toMatchSnapshot();
 });
 
 test('Object<include: Array<string>, ignore: string>', () => {
-  expect(toMatchExpression({
+  expect(parseFileMatchConfig({
     include: ['files/**/*.gql', 'files2/**/*gql'],
     ignore: '**/test/**/*.gql',
   })).toMatchSnapshot();
 });
 
 test('Object<match: Array<string>, ignore: Array<string>>', () => {
-  expect(toMatchExpression({
+  expect(parseFileMatchConfig({
     include: ['files/**/*.gql', 'files2/**/*gql'],
     ignore: ['**/test/**/*.gql'],
   })).toMatchSnapshot();
 });
+

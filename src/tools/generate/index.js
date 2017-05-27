@@ -1,8 +1,8 @@
 /* @flow */
-
 import GQLConfig, { type GQLConfigOptions } from '../../config/GQLConfig';
+import GQLWatcher from '../../shared/GQLWatcher';
 
-import { SchemaBuilder } from '../../schema';
+import { SchemaManager } from '../../schema';
 
 import generateFlowTypes from './generateFlowTypes';
 import generateSchemaJSON from './generateSchemaJSON';
@@ -34,7 +34,8 @@ async function generateFile(schema, target) {
     case 'schemaGQL':
       content = await generateSchemaGQL(schema);
       break;
-    default: break;
+    default:
+      break;
   }
   if (target.outputPath) {
     fs.writeFileSync(target.outputPath, content);
@@ -43,21 +44,25 @@ async function generateFile(schema, target) {
 }
 
 function generate(params: Params) {
-  const config = new GQLConfig(params.configOptions);
-  const schemaBuilder = new SchemaBuilder({
-    config,
-    watch: false,
-    onInit: async () => {
-      try {
-        const schema = schemaBuilder.getGraphQLSchema();
-        const targetContent = await Promise.all(params.targets.map((target) => (
-          generateFile(schema, target)
-        )));
-        if (params.callback) { params.callback(null, targetContent); }
-      } catch (err) {
-        if (params.callback) { params.callback(err, null); }
+  const schemaBuilder = new SchemaManager({
+    config: new GQLConfig(params.configOptions),
+    watcher: new GQLWatcher({ watch: false }),
+  });
+
+  schemaBuilder.onInit(async () => {
+    try {
+      const schema = schemaBuilder.getGraphQLSchema();
+      const targetContent = await Promise.all(
+        params.targets.map((target) => generateFile(schema, target)),
+      );
+      if (params.callback) {
+        params.callback(null, targetContent);
       }
-    },
+    } catch (err) {
+      if (params.callback) {
+        params.callback(err, null);
+      }
+    }
   });
 }
 
