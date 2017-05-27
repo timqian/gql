@@ -14,6 +14,7 @@ type Options = $Exact<{
   cwd?: string,
   onChange?: () => void,
   onInit?: () => void,
+  onError?: () => void,
   debug?: boolean,
   watchman?: boolean,
   watch?: boolean,
@@ -36,10 +37,13 @@ export class GQLService {
 
   _config: GQLConfig;
 
+  _onError: (err: Error) => void;
+
   constructor(options: ?Options) {
     const {
       onInit = _noop,
       onChange = _noop,
+      onError = _noop,
       watchman,
       watch,
       debug: enableDebug,
@@ -49,15 +53,23 @@ export class GQLService {
       (debug: any).enable();
     }
 
-    this._config = new GQLConfig(configOptions);
-    const watcher = new GQLWatcher({ watchman, watch });
+    this._onError = onError;
+
+    try {
+      this._config = new GQLConfig(configOptions);
+      this._watcher = new GQLWatcher({ watchman, watch });
+    } catch (e) {
+      process.nextTick(() => onError(e));
+      return;
+    }
 
     this._schemaManager = new schema.SchemaManager({
       config: this._config,
-      watcher,
+      watcher: this._watcher,
     });
 
     this._schemaManager.onChange(onChange);
+    this._schemaManager.onError(onError);
     this._schemaManager.onInit(() => {
       if (!this._config.getQuery()) {
         this._isInitialized = true;
@@ -68,7 +80,7 @@ export class GQLService {
       const queryManager = new query.QueryManager({
         config: this._config,
         getSchema: () => this._schemaManager.getSchema(),
-        watcher,
+        watcher: this._watcher,
       });
 
       this._queryManager = queryManager;
@@ -78,6 +90,7 @@ export class GQLService {
         onInit();
       });
       queryManager.onChange(onChange);
+      queryManager.onError(onError);
     });
   }
 
@@ -100,40 +113,45 @@ export class GQLService {
   }
 
   autocomplete(params: CommandParams): Array<GQLHint> {
-    debug.log('\n[autocomplete]');
-    debug.time('time');
-    const { sourceText, sourcePath, position } = params;
-    if (!this._isInitialized) {
+    try {
+      debug.log('\n[autocomplete]');
+      debug.time('time');
+      const { sourceText, sourcePath, position } = params;
+      if (!this._isInitialized) {
+        return [];
+      }
+
+      // codemirror instance
+      let results = [];
+      debug.time('match');
+      const match = this._config.match(sourcePath);
+      debug.timeEnd('match');
+      debug.log('FileType:', match && match.type);
+
+      debug.time('autocomplete');
+      if (match && match.type === 'schema') {
+        results = schema.commands.getHintsAtPosition(
+          this._schemaManager.getSchema(),
+          sourceText,
+          position,
+        );
+      }
+
+      if (match && match.type === 'query') {
+        results = query.commands.getHintsAtPosition(
+          this._schemaManager.getSchema(),
+          sourceText,
+          position,
+          match.opts,
+        );
+      }
+      debug.timeEnd('autocomplete');
+      debug.timeEnd('time');
+      return results;
+    } catch (err) {
+      this._onError(err);
       return [];
     }
-
-    // codemirror instance
-    let results = [];
-    debug.time('match');
-    const match = this._config.match(sourcePath);
-    debug.timeEnd('match');
-    debug.log('FileType:', match && match.type);
-
-    debug.time('autocomplete');
-    if (match && match.type === 'schema') {
-      results = schema.commands.getHintsAtPosition(
-        this._schemaManager.getSchema(),
-        sourceText,
-        position,
-      );
-    }
-
-    if (match && match.type === 'query') {
-      results = query.commands.getHintsAtPosition(
-        this._schemaManager.getSchema(),
-        sourceText,
-        position,
-        match.opts,
-      );
-    }
-    debug.timeEnd('autocomplete');
-    debug.timeEnd('time');
-    return results;
   }
 
   getDef(params: CommandParams): ?DefLocation {
@@ -143,98 +161,112 @@ export class GQLService {
     if (!this._isInitialized) {
       return undefined;
     }
+    try {
+      let defLocation = null;
+      debug.time('match');
+      const match = this._config.match(sourcePath);
+      debug.timeEnd('match');
+      debug.log('FileType:', match && match.type);
 
-    let defLocation = null;
-    debug.time('match');
-    const match = this._config.match(sourcePath);
-    debug.timeEnd('match');
-    debug.log('FileType:', match && match.type);
+      debug.time('getDef');
+      if (match && match.type === 'schema') {
+        defLocation = schema.commands.getDefinitionAtPosition(
+          this._schemaManager.getSchema(),
+          sourceText,
+          position,
+        );
+      }
 
-    debug.time('getDef');
-    if (match && match.type === 'schema') {
-      defLocation = schema.commands.getDefinitionAtPosition(
-        this._schemaManager.getSchema(),
-        sourceText,
-        position,
-      );
+      if (match && match.type === 'query') {
+        defLocation = query.commands.getDefinitionAtPosition(
+          this._schemaManager.getSchema(),
+          sourceText,
+          position,
+          match.opts.parser,
+        );
+      }
+      debug.timeEnd('getDef');
+      debug.timeEnd('time');
+      return defLocation;
+    } catch (err) {
+      this._onError(err);
+      return undefined;
     }
-
-    if (match && match.type === 'query') {
-      defLocation = query.commands.getDefinitionAtPosition(
-        this._schemaManager.getSchema(),
-        sourceText,
-        position,
-        match.opts.parser,
-      );
-    }
-    debug.timeEnd('getDef');
-    debug.timeEnd('time');
-    return defLocation;
   }
 
   findRefs(params: CommandParams): Array<DefLocation> {
-    debug.log('\n[findRefs]');
-    debug.time('time');
-    const { sourceText, sourcePath, position } = params;
-    if (!this._isInitialized) {
+    try {
+      debug.log('\n[findRefs]');
+      debug.time('time');
+      const { sourceText, sourcePath, position } = params;
+      if (!this._isInitialized) {
+        return [];
+      }
+
+      let refLocations = [];
+      debug.time('match');
+      const match = this._config.match(sourcePath);
+      debug.timeEnd('match');
+      debug.log('FileType:', match && match.type);
+
+      debug.time('findRefs');
+      if (match && match.type === 'schema') {
+        refLocations = schema.commands.findRefsOfTokenAtPosition(
+          this._schemaManager.getSchema(),
+          sourceText,
+          position,
+        );
+      }
+      debug.timeEnd('findRefs');
+
+      debug.timeEnd('time');
+      // @TODO query not implemented
+      return refLocations;
+    } catch (err) {
+      this._onError(err);
       return [];
     }
-
-    let refLocations = [];
-    debug.time('match');
-    const match = this._config.match(sourcePath);
-    debug.timeEnd('match');
-    debug.log('FileType:', match && match.type);
-
-    debug.time('findRefs');
-    if (match && match.type === 'schema') {
-      refLocations = schema.commands.findRefsOfTokenAtPosition(
-        this._schemaManager.getSchema(),
-        sourceText,
-        position,
-      );
-    }
-    debug.timeEnd('findRefs');
-
-    debug.timeEnd('time');
-    // @TODO query not implemented
-    return refLocations;
   }
 
   getInfo(params: CommandParams): ?GQLInfo {
-    debug.log('\n[getInfo]');
-    debug.time('time');
-    const { sourcePath, sourceText, position } = params;
-    if (!this._isInitialized) {
+    try {
+      debug.log('\n[getInfo]');
+      debug.time('time');
+      const { sourcePath, sourceText, position } = params;
+      if (!this._isInitialized) {
+        return undefined;
+      }
+
+      let info = null;
+      debug.time('match');
+      const match = this._config.match(sourcePath);
+      debug.timeEnd('match');
+      debug.log('FileType:', match && match.type);
+
+      debug.time('getInfoAtToken');
+      if (match && match.type === 'schema') {
+        info = schema.commands.getInfoOfTokenAtPosition(
+          this._schemaManager.getSchema(),
+          sourceText,
+          position,
+        );
+      }
+
+      if (match && match.type === 'query') {
+        info = query.commands.getInfoOfTokenAtPosition(
+          this._schemaManager.getSchema(),
+          sourceText,
+          position,
+          match.opts,
+        );
+      }
+      debug.timeEnd('getInfoAtToken');
+
+      debug.timeEnd('time');
+      return info;
+    } catch (err) {
+      this._onError(err);
       return undefined;
     }
-
-    let info = null;
-    debug.time('match');
-    const match = this._config.match(sourcePath);
-    debug.timeEnd('match');
-    debug.log('FileType:', match && match.type);
-
-    debug.time('getInfoAtToken');
-    if (match && match.type === 'schema') {
-      info = schema.commands.getInfoOfTokenAtPosition(
-        this._schemaManager.getSchema(),
-        sourceText,
-        position,
-      );
-    }
-
-    if (match && match.type === 'query') {
-      info = query.commands.getInfoOfTokenAtPosition(
-        this._schemaManager.getSchema(),
-        sourceText,
-        position,
-        match.opts,
-      );
-    }
-    debug.timeEnd('getInfoAtToken');
-
-    debug.timeEnd('time');
-    return info;
   }
 }
