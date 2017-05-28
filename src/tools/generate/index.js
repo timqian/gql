@@ -1,6 +1,7 @@
 /* @flow */
 import GQLConfig, { type GQLConfigOptions } from '../../config/GQLConfig';
 import GQLWatcher from '../../shared/GQLWatcher';
+import invariant from 'invariant';
 
 import { SchemaManager } from '../../schema';
 
@@ -35,7 +36,10 @@ async function generateFile(schema, target) {
       content = await generateSchemaGQL(schema);
       break;
     default:
-      break;
+      invariant(
+        false,
+        `expecting type to be oneof ['schemaFlow', 'schemaJSON', 'schemaGQL'] but got '${target.type}'.`,
+      );
   }
   if (target.outputPath) {
     fs.writeFileSync(target.outputPath, content);
