@@ -6,7 +6,7 @@ Object {
   "prevChar": "a",
   "start": 78,
   "state": Object {
-    "jsInlineFragment": null,
+    "interpolation": null,
     "kind": "Field",
     "level": 0,
     "levels": Array [
@@ -16,7 +16,7 @@ Object {
     "needsAdvance": true,
     "needsSeperator": false,
     "prevState": Object {
-      "jsInlineFragment": null,
+      "interpolation": null,
       "kind": "Selection",
       "level": 0,
       "levels": Array [
@@ -26,7 +26,7 @@ Object {
       "needsAdvance": false,
       "needsSeperator": false,
       "prevState": Object {
-        "jsInlineFragment": null,
+        "interpolation": null,
         "kind": "SelectionSet",
         "level": 0,
         "levels": Array [
@@ -155,7 +155,7 @@ Object {
   "prevChar": "a",
   "start": 62,
   "state": Object {
-    "jsInlineFragment": null,
+    "interpolation": null,
     "kind": "Field",
     "level": 0,
     "levels": Array [
@@ -165,7 +165,7 @@ Object {
     "needsAdvance": true,
     "needsSeperator": false,
     "prevState": Object {
-      "jsInlineFragment": null,
+      "interpolation": null,
       "kind": "Selection",
       "level": 0,
       "levels": Array [
@@ -175,7 +175,7 @@ Object {
       "needsAdvance": false,
       "needsSeperator": false,
       "prevState": Object {
-        "jsInlineFragment": null,
+        "interpolation": null,
         "kind": "SelectionSet",
         "level": 0,
         "levels": Array [
@@ -304,7 +304,7 @@ Object {
   "prevChar": "a",
   "start": 111,
   "state": Object {
-    "jsInlineFragment": null,
+    "interpolation": null,
     "kind": "Field",
     "level": 0,
     "levels": Array [
@@ -314,7 +314,7 @@ Object {
     "needsAdvance": true,
     "needsSeperator": false,
     "prevState": Object {
-      "jsInlineFragment": null,
+      "interpolation": null,
       "kind": "Selection",
       "level": 0,
       "levels": Array [
@@ -324,7 +324,7 @@ Object {
       "needsAdvance": false,
       "needsSeperator": false,
       "prevState": Object {
-        "jsInlineFragment": null,
+        "interpolation": null,
         "kind": "SelectionSet",
         "level": 0,
         "levels": Array [
