@@ -1,0 +1,407 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`query-files default case 1`] = `
+Object {
+  "query": Object {
+    "files": Array [
+      Object {
+        "extendSchema": undefined,
+        "match": "files/**.js",
+        "parser": Array [
+          [Function],
+          Object {},
+        ],
+        "validate": Object {
+          "config": Object {
+            "ArgumentsOfCorrectType": "error",
+            "DefaultValuesOfCorrectType": "error",
+            "FieldsOnCorrectType": "error",
+            "FragmentsOnCompositeTypes": "error",
+            "KnownArgumentNames": "error",
+            "KnownDirectives": "error",
+            "KnownFragmentNames": "error",
+            "KnownTypeNames": "error",
+            "LoneAnonymousOperation": "error",
+            "NoFragmentCycles": "error",
+            "NoUndefinedVariables": "error",
+            "NoUnusedFragments": "error",
+            "NoUnusedVariables": "error",
+            "OverlappingFieldsCanBeMerged": "error",
+            "PossibleFragmentSpreads": "error",
+            "ProvidedNonNullArguments": "error",
+            "RequiredOperationName": "warn",
+            "ScalarLeafs": "error",
+            "UniqueArgumentNames": "error",
+            "UniqueDirectivesPerLocation": "error",
+            "UniqueFragmentNames": "error",
+            "UniqueInputFieldNames": "error",
+            "UniqueOperationNames": "error",
+            "UniqueVariableNames": "error",
+            "VariablesAreInputTypes": "error",
+            "VariablesInAllowedPosition": "error",
+          },
+          "rules": Array [
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+          ],
+        },
+      },
+    ],
+  },
+  "schema": Object {
+    "files": "file/schema/*.gql",
+    "parser": Array [
+      [Function],
+      Object {},
+    ],
+    "validate": Object {
+      "config": Object {
+        "NoUnusedTypeDefinition": "warn",
+      },
+      "rules": Array [
+        [Function],
+      ],
+    },
+  },
+}
+`;
+
+exports[`query-files preset custom-preset 1`] = `
+Object {
+  "query": Object {
+    "files": Array [
+      Object {
+        "extendSchema": undefined,
+        "match": "files/**.js",
+        "parser": Array [
+          [Function],
+          Object {
+            "some-option": true,
+          },
+        ],
+        "validate": Object {
+          "config": Object {
+            "someCustomRule": "warn",
+          },
+          "rules": Array [
+            [Function],
+          ],
+        },
+      },
+    ],
+  },
+  "schema": Object {
+    "files": "file/schema/*.gql",
+    "parser": Array [
+      [Function],
+      Object {},
+    ],
+    "validate": Object {
+      "config": Object {
+        "NoUnusedTypeDefinition": "warn",
+      },
+      "rules": Array [
+        [Function],
+      ],
+    },
+  },
+}
+`;
+
+exports[`query-files preset preset: apollo 1`] = `
+Object {
+  "query": Object {
+    "files": Array [
+      Object {
+        "extendSchema": undefined,
+        "match": "files/**.js",
+        "parser": Array [
+          [Function],
+          Object {
+            "allowDocumentInterpolation": true,
+            "end": "\`",
+            "start": "gql\`",
+          },
+        ],
+        "validate": Object {
+          "config": Object {
+            "ArgumentsOfCorrectType": "error",
+            "DefaultValuesOfCorrectType": "error",
+            "FieldsOnCorrectType": "error",
+            "FragmentsOnCompositeTypes": "error",
+            "KnownArgumentNames": "error",
+            "KnownDirectives": "error",
+            "KnownFragmentNames": "off",
+            "KnownTypeNames": "error",
+            "LoneAnonymousOperation": "off",
+            "NoFragmentCycles": "error",
+            "NoUndefinedVariables": "error",
+            "NoUnusedFragments": "off",
+            "NoUnusedVariables": "error",
+            "OverlappingFieldsCanBeMerged": "error",
+            "PossibleFragmentSpreads": "error",
+            "ProvidedNonNullArguments": "error",
+            "RequiredOperationName": "warn",
+            "ScalarLeafs": "error",
+            "UniqueArgumentNames": "error",
+            "UniqueDirectivesPerLocation": "error",
+            "UniqueFragmentNames": "error",
+            "UniqueInputFieldNames": "error",
+            "UniqueOperationNames": "error",
+            "UniqueVariableNames": "error",
+            "VariablesAreInputTypes": "error",
+            "VariablesInAllowedPosition": "error",
+          },
+          "rules": Array [
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+          ],
+        },
+      },
+    ],
+  },
+  "schema": Object {
+    "files": "file/schema/*.gql",
+    "parser": Array [
+      [Function],
+      Object {},
+    ],
+    "validate": Object {
+      "config": Object {
+        "NoUnusedTypeDefinition": "warn",
+      },
+      "rules": Array [
+        [Function],
+      ],
+    },
+  },
+}
+`;
+
+exports[`query-files preset preset: relay 1`] = `
+Object {
+  "query": Object {
+    "files": Array [
+      Object {
+        "extendSchema": [Function],
+        "match": "files/**.js",
+        "parser": Array [
+          [Function],
+          Object {
+            "allowFragmentInterpolation": true,
+            "allowFragmentWithoutName": true,
+            "end": "\`",
+            "start": "Relay\\\\.QL\`",
+          },
+        ],
+        "validate": Object {
+          "config": Object {
+            "ArgumentsOfCorrectType": "error",
+            "DefaultValuesOfCorrectType": "off",
+            "FieldsOnCorrectType": "error",
+            "FragmentsOnCompositeTypes": "error",
+            "KnownArgumentNames": "error",
+            "KnownDirectives": "error",
+            "KnownFragmentNames": "off",
+            "KnownTypeNames": "error",
+            "LoneAnonymousOperation": "off",
+            "NoFragmentCycles": "off",
+            "NoUndefinedVariables": "off",
+            "NoUnusedFragments": "off",
+            "NoUnusedVariables": "off",
+            "OverlappingFieldsCanBeMerged": "error",
+            "PossibleFragmentSpreads": "error",
+            "ProvidedNonNullArguments": "error",
+            "RequiredOperationName": "warn",
+            "ScalarLeafs": "error",
+            "UniqueArgumentNames": "error",
+            "UniqueDirectivesPerLocation": "error",
+            "UniqueFragmentNames": "off",
+            "UniqueInputFieldNames": "error",
+            "UniqueOperationNames": "off",
+            "UniqueVariableNames": "error",
+            "UniqueVariablesName": "off",
+            "VariablesAreInputTypes": "off",
+            "VariablesInAllowedPosition": "off",
+          },
+          "rules": Array [
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+          ],
+        },
+      },
+    ],
+  },
+  "schema": Object {
+    "files": "file/schema/*.gql",
+    "parser": Array [
+      [Function],
+      Object {},
+    ],
+    "validate": Object {
+      "config": Object {
+        "NoUnusedTypeDefinition": "warn",
+      },
+      "rules": Array [
+        [Function],
+      ],
+    },
+  },
+}
+`;
+
+exports[`schema-config default case 1`] = `
+Object {
+  "schema": Object {
+    "files": "file/schema/*.gql",
+    "parser": Array [
+      [Function],
+      Object {},
+    ],
+    "validate": Object {
+      "config": Object {
+        "NoUnusedTypeDefinition": "warn",
+      },
+      "rules": Array [
+        [Function],
+      ],
+    },
+  },
+}
+`;
+
+exports[`schema-config use custom preset 1`] = `
+Object {
+  "schema": Object {
+    "files": "file/schema/*.gql",
+    "parser": Array [
+      [Function],
+      Object {
+        "some-option": true,
+      },
+    ],
+    "validate": Object {
+      "config": Object {
+        "someCustomRule": "warn",
+      },
+      "rules": Array [
+        [Function],
+      ],
+    },
+  },
+}
+`;
+
+exports[`schema-config use custom parser 1`] = `
+Object {
+  "schema": Object {
+    "files": "file/schema/*.gql",
+    "parser": Array [
+      [Function],
+      Object {
+        "customParserOption": 5,
+      },
+    ],
+    "validate": Object {
+      "config": Object {
+        "NoUnusedTypeDefinition": "warn",
+      },
+      "rules": Array [
+        [Function],
+      ],
+    },
+  },
+}
+`;
+
+exports[`schema-config use custom validation config 1`] = `
+Object {
+  "schema": Object {
+    "files": "file/schema/*.gql",
+    "parser": Array [
+      [Function],
+      Object {},
+    ],
+    "validate": Object {
+      "config": Object {
+        "NoUnusedTypeDefinition": "error",
+      },
+      "rules": Array [
+        [Function],
+      ],
+    },
+  },
+}
+`;

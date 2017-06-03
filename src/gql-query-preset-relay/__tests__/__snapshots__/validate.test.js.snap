@@ -1,0 +1,76 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Rule: ArgumentsOfCorrectType report error for wrong type 1`] = `
+Array [
+  Object {
+    "locations": Array [
+      Object {
+        "column": 17,
+        "line": 3,
+        "path": "/tmp/gql-test/7c4aa29805ce76a47df131087167da422b0bc7a6/query/test.js",
+      },
+    ],
+    "message": "Argument \\"size\\" has invalid value 
+Expected type \\"Int\\", found \\"some_string_value\\". (ArgumentsOfCorrectType)",
+    "severity": "error",
+  },
+]
+`;
+
+exports[`Rule: ProvidedNonNullArguments allow mutation field without arguments 1`] = `Array []`;
+
+exports[`Rule: ProvidedNonNullArguments report error if field arguments missing 1`] = `
+Array [
+  Object {
+    "locations": Array [
+      Object {
+        "column": 5,
+        "line": 3,
+        "path": "/tmp/gql-test/fb90496a5e1936517ca353947ca2747dd3ddb012/query/test.js",
+      },
+    ],
+    "message": "Field \\"image\\" argument \\"size\\" of type \\"Int!\\" is required but not provided. (ProvidedNonNullArguments)",
+    "severity": "error",
+  },
+]
+`;
+
+exports[`allow field without subselection in fragments if @relay(pattern: true) is present 1`] = `Array []`;
+
+exports[`allow mutation without subselection 1`] = `Array []`;
+
+exports[`allow query without subselection 1`] = `Array []`;
+
+exports[`report error for missing subselection in fragments 1`] = `
+Array [
+  Object {
+    "locations": Array [
+      Object {
+        "column": 5,
+        "line": 3,
+        "path": "/tmp/gql-test/556289d2c8c4360cb77f406658f0cca53c7ecfda/query/test.js",
+      },
+    ],
+    "message": "Field \\"me\\" of type \\"User!\\" must have a selection of subfields. Did you mean \\"me { ... }\\"? (ScalarLeafs)",
+    "severity": "error",
+  },
+]
+`;
+
+exports[`report if operation name missing 1`] = `
+Array [
+  Object {
+    "locations": Array [
+      Object {
+        "column": 3,
+        "line": 2,
+        "path": "/tmp/gql-test/e4a0e98d890f796057d25001c2c0317401f16b3f/query/test.js",
+      },
+    ],
+    "message": "query name is missing. (RequiredOperationName)",
+    "severity": "warn",
+  },
+]
+`;
+
+exports[`should not report errors for valid query 1`] = `Array []`;

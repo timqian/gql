@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`parser: allow interpolation document level 1`] = `Array []`;
+
+exports[`parser: should not allow interpolation inside fragments 1`] = `
+Array [
+  Object {
+    "locations": Array [
+      Object {
+        "column": 7,
+        "line": 5,
+        "path": "/tmp/gql-test/19b736a9afdbeb0272348226671f5001d660d182/query/test.js",
+      },
+    ],
+    "message": "Syntax Error: Expected Name, found $",
+    "severity": "error",
+  },
+]
+`;
+
+exports[`parser: should report error if fragment name missing 1`] = `
+Array [
+  Object {
+    "locations": Array [
+      Object {
+        "column": 12,
+        "line": 2,
+        "path": "/tmp/gql-test/5a49316ce4b85c10ca9962cc8e852bcd778094be/query/test.js",
+      },
+    ],
+    "message": "Syntax Error: Unexpected Name \\"on\\"",
+    "severity": "error",
+  },
+]
+`;

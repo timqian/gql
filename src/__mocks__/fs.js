@@ -4,7 +4,7 @@
  */
 import MemoryFileSystem from 'memory-fs';
 import path from 'path';
-import EventEmitter from '../shared/emitter';
+import EventEmitter from 'gql-shared/emitter';
 
 const KEEP_WATCH_RUNNING_TIME = 60 * 60 * 1000;
 

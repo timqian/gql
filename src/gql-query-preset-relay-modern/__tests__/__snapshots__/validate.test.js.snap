@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`[NoSchemaDefinition] 1`] = `Array []`;
+
+exports[`ExactlyOneOperation 1`] = `
+Array [
+  Object {
+    "locations": Array [
+      Object {
+        "column": 1,
+        "line": 1,
+        "path": "/tmp/gql-test/fa72518905209aba7733d442278150fb63d946b7/query/test.js",
+      },
+    ],
+    "message": "Expected exactly one operation (query, mutation or subscription) (ExactlyOneOperationPerTag)",
+    "severity": "error",
+  },
+]
+`;

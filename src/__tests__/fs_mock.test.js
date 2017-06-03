@@ -10,7 +10,7 @@ test('fs: watch works', () => {
   fs.writeFileSync('/test/test.txt', 'test file');
   fs.writeFile('/test/test2.txt', 'test file', () => {}); // eslint-disable-line no-empty-function
 
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     setTimeout(() => {
       watch.close();
       resolve();
